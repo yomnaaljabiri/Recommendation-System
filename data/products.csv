@@ -1,0 +1,50 @@
+product_id,product_name,category,price,avg_rating,num_reviews,description,brand
+1,Wireless Headphones,Electronics,193.52,4.9,1140,High quality wireless headphones in Electronics category.,BrandD
+2,Smart Watch,Electronics,303.34,3.3,476,High quality smart watch in Electronics category.,BrandC
+3,Bluetooth Speaker,Electronics,38.46,4.7,1133,High quality bluetooth speaker in Electronics category.,BrandD
+4,USB-C Hub,Electronics,356.96,3.0,779,High quality usb-c hub in Electronics category.,BrandD
+5,Mechanical Keyboard,Electronics,417.9,3.4,1225,High quality mechanical keyboard in Electronics category.,BrandD
+6,Webcam 4K,Electronics,99.87,3.6,31,High quality webcam 4k in Electronics category.,BrandA
+7,LED Monitor,Electronics,221.65,3.6,1092,High quality led monitor in Electronics category.,BrandC
+8,Python Mastery,Books,78.35,3.6,985,High quality python mastery in Books category.,BrandC
+9,Deep Learning Guide,Books,233.47,4.6,572,High quality deep learning guide in Books category.,BrandD
+10,System Design,Books,261.97,4.2,1164,High quality system design in Books category.,BrandA
+11,Clean Code,Books,307.7,3.3,176,High quality clean code in Books category.,BrandB
+12,The Pragmatic Programmer,Books,474.95,4.9,251,High quality the pragmatic programmer in Books category.,BrandB
+13,AI Revolution,Books,159.26,3.2,1373,High quality ai revolution in Books category.,BrandD
+14,Running Shoes,Clothing,225.67,3.2,518,High quality running shoes in Clothing category.,BrandD
+15,Casual Hoodie,Clothing,26.85,4.8,1965,High quality casual hoodie in Clothing category.,BrandB
+16,Slim Jeans,Clothing,334.64,3.6,1423,High quality slim jeans in Clothing category.,BrandB
+17,Polo Shirt,Clothing,277.89,3.4,712,High quality polo shirt in Clothing category.,BrandB
+18,Winter Jacket,Clothing,389.82,4.9,1991,High quality winter jacket in Clothing category.,BrandD
+19,Sports Socks,Clothing,302.97,4.8,465,High quality sports socks in Clothing category.,BrandB
+20,Air Fryer,Home & Kitchen,106.03,3.1,305,High quality air fryer in Home & Kitchen category.,BrandA
+21,Coffee Maker,Home & Kitchen,200.45,3.5,1086,High quality coffee maker in Home & Kitchen category.,BrandD
+22,Blender Pro,Home & Kitchen,184.81,3.6,389,High quality blender pro in Home & Kitchen category.,BrandA
+23,Instant Pot,Home & Kitchen,79.05,4.6,74,High quality instant pot in Home & Kitchen category.,BrandA
+24,Knife Set,Home & Kitchen,493.57,4.5,657,High quality knife set in Home & Kitchen category.,BrandD
+25,Cutting Board,Home & Kitchen,16.9,3.4,401,High quality cutting board in Home & Kitchen category.,BrandC
+26,Yoga Mat,Sports,397.19,4.2,1523,High quality yoga mat in Sports category.,BrandC
+27,Resistance Bands,Sports,329.03,4.8,210,High quality resistance bands in Sports category.,BrandD
+28,Protein Shaker,Sports,230.23,3.2,512,High quality protein shaker in Sports category.,BrandC
+29,Jump Rope,Sports,337.73,4.3,693,High quality jump rope in Sports category.,BrandD
+30,Foam Roller,Sports,144.61,4.1,1772,High quality foam roller in Sports category.,BrandA
+31,Gym Gloves,Sports,486.14,4.7,1038,High quality gym gloves in Sports category.,BrandB
+32,Face Serum,Beauty,125.63,3.5,804,High quality face serum in Beauty category.,BrandA
+33,Moisturizer SPF50,Beauty,358.22,3.2,901,High quality moisturizer spf50 in Beauty category.,BrandA
+34,Vitamin C Cream,Beauty,108.84,4.8,1274,High quality vitamin c cream in Beauty category.,BrandD
+35,Hair Mask,Beauty,286.01,4.4,494,High quality hair mask in Beauty category.,BrandC
+36,Eye Cream,Beauty,306.16,4.1,550,High quality eye cream in Beauty category.,BrandD
+37,Sunscreen,Beauty,472.0,4.2,1276,High quality sunscreen in Beauty category.,BrandB
+38,LEGO Set,Toys,441.43,4.2,1607,High quality lego set in Toys category.,BrandA
+39,RC Car,Toys,61.69,3.9,1653,High quality rc car in Toys category.,BrandD
+40,Puzzle 1000pc,Toys,214.09,4.8,1673,High quality puzzle 1000pc in Toys category.,BrandB
+41,Board Game,Toys,69.82,3.7,199,High quality board game in Toys category.,BrandA
+42,Drone Mini,Toys,143.34,4.3,642,High quality drone mini in Toys category.,BrandD
+43,Slime Kit,Toys,182.76,3.6,719,High quality slime kit in Toys category.,BrandD
+44,Car Charger,Automotive,271.7,4.0,1258,High quality car charger in Automotive category.,BrandC
+45,Dash Cam,Automotive,142.01,3.5,1860,High quality dash cam in Automotive category.,BrandB
+46,Phone Mount,Automotive,117.19,4.1,1725,High quality phone mount in Automotive category.,BrandA
+47,Air Freshener,Automotive,41.8,3.5,1301,High quality air freshener in Automotive category.,BrandB
+48,Cleaning Kit,Automotive,351.19,4.4,1646,High quality cleaning kit in Automotive category.,BrandA
+49,Seat Covers,Automotive,498.89,3.5,11,High quality seat covers in Automotive category.,BrandB

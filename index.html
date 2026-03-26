@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نظام التوصية الذكي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04070f;--surface:#080e1c;--card:#0b1525;--card2:#0f1c32;
+  --b1:rgba(56,139,253,.12);--b2:rgba(56,139,253,.22);
+  --accent:#388bfd;--accent2:#7c6aff;--cyan:#26d8f0;
+  --green:#2dcea0;--yellow:#f0b429;--red:#f06a6a;--purple:#b095ff;
+  --text:#cdd9e5;--muted:#576d8a;--muted2:#8b9cb5;
+  --glow:0 0 28px rgba(56,139,253,.2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* mesh bg */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 45% at 15% 8%,rgba(56,139,253,.07) 0%,transparent 55%),
+    radial-gradient(ellipse 55% 40% at 85% 92%,rgba(124,106,255,.05) 0%,transparent 55%),
+    radial-gradient(ellipse 40% 30% at 55% 50%,rgba(38,216,240,.03) 0%,transparent 55%)}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--b1) 1px,transparent 1px),linear-gradient(90deg,var(--b1) 1px,transparent 1px);
+  background-size:52px 52px}
+
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+
+/* ── HEADER ── */
+header{position:sticky;top:0;z-index:300;height:60px;
+  background:rgba(4,7,15,.88);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--b1);
+  display:flex;align-items:center;justify-content:space-between;padding:0 1.75rem}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:1rem;
+  box-shadow:var(--glow);animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:var(--glow)}50%{box-shadow:0 0 40px rgba(56,139,253,.35)}}
+.brand-name{font-size:.9rem;font-weight:800;color:#dce8f8;letter-spacing:-.01em}
+.brand-tag{font-size:.6rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.tabs{display:flex;gap:2px}
+.tab{background:none;border:none;color:var(--muted2);padding:.38rem .85rem;border-radius:7px;
+  cursor:pointer;font-family:'Tajawal',sans-serif;font-size:.8rem;font-weight:600;transition:all .18s}
+.tab:hover{color:var(--text);background:var(--b1)}
+.tab.on{color:#fff;background:rgba(56,139,253,.14);box-shadow:inset 0 0 0 1px var(--b2)}
+
+/* ── LAYOUT ── */
+.page{max-width:1400px;margin:0 auto;padding:1.6rem 1.75rem;position:relative;z-index:1}
+.view{display:none}.view.on{display:block}
+
+/* ── STAT CARDS ── */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:.85rem;margin-bottom:1.75rem}
+.kpi{background:var(--card);border:1px solid var(--b1);border-radius:13px;
+  padding:1rem 1.2rem;display:flex;align-items:center;gap:11px;
+  transition:transform .18s,border-color .18s}
+.kpi:hover{transform:translateY(-2px);border-color:var(--b2)}
+.kpi-ico{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.ki-b{background:rgba(56,139,253,.13)}.ki-p{background:rgba(124,106,255,.13)}
+.ki-c{background:rgba(38,216,240,.13)}.ki-g{background:rgba(45,206,160,.13)}.ki-y{background:rgba(240,180,41,.13)}
+.kpi-n{font-size:1.45rem;font-weight:900;color:#dce8f8;font-family:'JetBrains Mono',monospace;line-height:1}
+.kpi-l{font-size:.65rem;color:var(--muted);margin-top:3px}
+
+/* ── PANEL ── */
+.panel{background:var(--card);border:1px solid var(--b1);border-radius:15px;padding:1.4rem;margin-bottom:1.15rem}
+.ph{font-size:.88rem;font-weight:700;color:#dce8f8;margin-bottom:1.1rem;display:flex;align-items:center;gap:7px}
+
+/* ── CHARTS ── */
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-bottom:1.5rem}
+.cc{background:var(--card);border:1px solid var(--b1);border-radius:13px;padding:1.2rem}
+.ct{font-size:.75rem;font-weight:700;color:var(--text);margin-bottom:.9rem}
+.bi{display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem}
+.bl{font-size:.7rem;color:var(--muted2);min-width:78px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bt{flex:1;height:7px;background:var(--b1);border-radius:4px;overflow:hidden}
+.bf{height:100%;border-radius:4px;transition:width .9s ease}
+.bv{font-size:.65rem;color:var(--muted);min-width:28px;font-family:'JetBrains Mono',monospace}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto;border-radius:11px;border:1px solid var(--b1)}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead tr{background:var(--card2)}
+th{padding:.7rem .95rem;text-align:right;color:var(--muted2);font-weight:700;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+td{padding:.65rem .95rem;border-top:1px solid var(--b1);vertical-align:middle}
+tbody tr{transition:background .12s}
+tbody tr:hover{background:rgba(56,139,253,.04)}
+
+/* badges */
+.tag{display:inline-block;padding:2px 8px;border-radius:100px;font-size:.65rem;font-weight:700}
+.te{background:rgba(56,139,253,.14);color:#79b8ff}
+.tb{background:rgba(240,180,41,.12);color:var(--yellow)}
+.tc{background:rgba(124,106,255,.13);color:var(--purple)}
+.ts{background:rgba(45,206,160,.12);color:var(--green)}
+.th{background:rgba(38,216,240,.12);color:var(--cyan)}
+.tbe{background:rgba(240,106,106,.12);color:var(--red)}
+.tf{background:rgba(45,206,160,.12);color:var(--green)}
+.ty{background:rgba(240,180,41,.12);color:var(--yellow)}
+.t-bud{background:rgba(99,102,241,.12);color:#818cf8}
+.t-mid{background:rgba(56,139,253,.12);color:#79b8ff}
+.t-pre{background:rgba(240,180,41,.12);color:var(--yellow)}
+.t-m{background:rgba(56,139,253,.1);color:#79b8ff}
+.t-f{background:rgba(124,106,255,.1);color:var(--purple)}
+.t-o{background:rgba(45,206,160,.1);color:var(--green)}
+.mono{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted2)}
+.price{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--green);font-size:.78rem}
+.stars{color:var(--yellow);font-size:.78rem}
+
+/* ── TOOLBAR ── */
+.tb-row{display:flex;gap:.65rem;margin-bottom:1.1rem;flex-wrap:wrap;align-items:center}
+.sb{position:relative;flex:1;min-width:160px}
+.sb input{width:100%;background:var(--surface);border:1px solid var(--b1);color:var(--text);
+  padding:.58rem .9rem .58rem 2.2rem;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.82rem;outline:none;transition:border-color .18s}
+.sb input:focus{border-color:var(--accent)}
+.si{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem;pointer-events:none}
+.flt{background:var(--surface);border:1px solid var(--b1);color:var(--text);
+  padding:.58rem .85rem;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.8rem;
+  outline:none;cursor:pointer;transition:border-color .18s;appearance:none;-webkit-appearance:none}
+.flt:focus{border-color:var(--accent)}
+.cnt{font-size:.72rem;color:var(--muted2);padding:.38rem .75rem;background:var(--card2);
+  border:1px solid var(--b1);border-radius:7px;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+
+/* ── PAGER ── */
+.pgr{display:flex;align-items:center;justify-content:center;gap:.35rem;margin-top:1rem;flex-wrap:wrap}
+.pg{background:var(--card2);border:1px solid var(--b1);color:var(--muted2);
+  padding:.35rem .7rem;border-radius:6px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.72rem;transition:all .14s}
+.pg:hover:not(:disabled){border-color:var(--accent);color:#79b8ff}
+.pg.cur{background:rgba(56,139,253,.14);border-color:var(--accent);color:#79b8ff}
+.pg:disabled{opacity:.28;cursor:not-allowed}
+.pgi{font-size:.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace;padding:0 .35rem}
+
+/* ── RECOMMEND ── */
+.methods{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:1rem}
+.mth{background:var(--surface);border:1.5px solid var(--b1);border-radius:9px;padding:.55rem;
+  text-align:center;cursor:pointer;transition:all .18s;font-family:'Tajawal',sans-serif}
+.mth:hover{border-color:var(--accent)}.mth.on{border-color:var(--accent);background:rgba(56,139,253,.1);box-shadow:var(--glow)}
+.mi{font-size:1.3rem;display:block;margin-bottom:3px}.ml{font-size:.68rem;font-weight:600;color:var(--muted2)}.mth.on .ml{color:#fff}
+.row{display:flex;gap:.65rem;align-items:flex-end;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:.35rem;flex:1;min-width:120px}
+.field label{font-size:.65rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.field select{background:var(--surface);border:1px solid var(--b1);color:var(--text);
+  padding:.58rem .85rem;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.82rem;
+  outline:none;appearance:none;-webkit-appearance:none;transition:border-color .18s}
+.field select:focus{border-color:var(--accent)}
+.btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;
+  padding:.6rem 1.5rem;border-radius:8px;cursor:pointer;font-family:'Tajawal',sans-serif;
+  font-size:.85rem;font-weight:700;white-space:nowrap;
+  transition:opacity .18s,transform .12s;box-shadow:0 3px 14px rgba(56,139,253,.28)}
+.btn:hover{opacity:.9;transform:translateY(-1px)}.btn:active{transform:translateY(0)}
+
+/* ── CARDS ── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:.8rem;margin-top:1.1rem}
+.pc{background:var(--card2);border:1px solid var(--b1);border-radius:12px;padding:.95rem;
+  transition:transform .18s,border-color .18s,box-shadow .18s;animation:ci .32s ease backwards}
+.pc:hover{transform:translateY(-3px);border-color:rgba(56,139,253,.32);box-shadow:0 6px 22px rgba(56,139,253,.09)}
+@keyframes ci{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.pc:nth-child(1){animation-delay:.04s}.pc:nth-child(2){animation-delay:.08s}
+.pc:nth-child(3){animation-delay:.12s}.pc:nth-child(4){animation-delay:.16s}
+.pc:nth-child(5){animation-delay:.20s}.pc:nth-child(6){animation-delay:.24s}
+.pc-rank{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;
+  border-radius:5px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  font-size:.6rem;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace;margin-bottom:.55rem}
+.pc-ico{font-size:2.1rem;text-align:center;display:block;margin-bottom:.55rem}
+.pc-name{font-size:.78rem;font-weight:700;color:#dce8f8;line-height:1.35;margin-bottom:.45rem}
+.pc-tags{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.6rem}
+.pt{font-size:.58rem;font-weight:700;padding:2px 6px;border-radius:100px}
+.pt-c{background:rgba(124,106,255,.12);color:var(--purple);border:1px solid rgba(124,106,255,.2)}
+.pt-b{background:rgba(56,139,253,.1);color:#79b8ff;border:1px solid rgba(56,139,253,.2)}
+.pc-sl{font-size:.65rem;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:3px}
+.sb2{height:3px;background:var(--b1);border-radius:2px;overflow:hidden}
+.sf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--cyan));transition:width .75s ease}
+.pc-rt{font-size:.7rem;color:var(--yellow);font-weight:700;margin-top:.45rem}
+.pc-pr{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--green);margin-top:2px}
+
+/* ── METRICS SIDEBAR ── */
+.mi-list{display:flex;flex-direction:column;gap:.5rem}
+.mi-row{background:var(--surface);border:1px solid var(--b1);border-radius:8px;
+  padding:.8rem .95rem;display:flex;justify-content:space-between;align-items:center}
+.mi-k{font-size:.7rem;color:var(--muted);font-weight:600}
+.mi-v{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:800}
+.arch{font-size:.76rem;color:var(--muted2);line-height:2.1}
+
+.empty{text-align:center;padding:2.5rem;color:var(--muted)}
+.ei{font-size:2rem;display:block;margin-bottom:.55rem;opacity:.45}
+.loading{display:flex;align-items:center;justify-content:center;gap:9px;padding:3rem;color:var(--muted);font-size:.82rem}
+.spin{width:26px;height:26px;border-radius:50%;border:2.5px solid var(--b1);border-top-color:var(--accent);animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.cgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:720px){.kpis{grid-template-columns:1fr 1fr}.cgrid{grid-template-columns:1fr}.rec-layout{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">🧠</div>
+    <div>
+      <div class="brand-name">نظام التوصية الذكي</div>
+      <div class="brand-tag">Smart Recommendation System · ML + DL</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab on"  onclick="go('overview',this)">📊 نظرة عامة</button>
+    <button class="tab"     onclick="go('users',this)">👥 المستخدمون</button>
+    <button class="tab"     onclick="go('products',this)">📦 المنتجات</button>
+    <button class="tab"     onclick="go('ratings',this)">⭐ التقييمات</button>
+    <button class="tab"     onclick="go('recommend',this)">✨ التوصيات</button>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-ico ki-b">👥</div><div><div class="kpi-n">500</div><div class="kpi-l">مستخدم</div></div></div>
+    <div class="kpi"><div class="kpi-ico ki-p">📦</div><div><div class="kpi-n">200</div><div class="kpi-l">منتج</div></div></div>
+    <div class="kpi"><div class="kpi-ico ki-c">⭐</div><div><div class="kpi-n">8,000</div><div class="kpi-l">تقييم</div></div></div>
+    <div class="kpi"><div class="kpi-ico ki-g">📈</div><div><div class="kpi-n">3.15</div><div class="kpi-l">متوسط التقييم</div></div></div>
+    <div class="kpi"><div class="kpi-ico ki-y">🏷️</div><div><div class="kpi-n">8</div><div class="kpi-l">فئة منتجات</div></div></div>
+  </div>
+
+  <!-- ══ OVERVIEW ══ -->
+  <div class="view on" id="v-overview">
+    <div class="cgrid">
+      <div class="cc"><div class="ct">📦 المنتجات حسب الفئة</div><div id="c-cat"></div></div>
+      <div class="cc"><div class="ct">🌍 المستخدمون حسب الموقع</div><div id="c-loc"></div></div>
+      <div class="cc"><div class="ct">🎯 شرائح العملاء & الجنس</div><div id="c-seg"></div></div>
+    </div>
+    <div class="panel">
+      <div class="ph">🔥 أعلى 8 منتجات تقييماً</div>
+      <div id="top-prods"></div>
+    </div>
+  </div>
+
+  <!-- ══ USERS ══ -->
+  <div class="view" id="v-users">
+    <div class="panel">
+      <div class="ph">👥 جدول المستخدمين الكامل</div>
+      <div class="tb-row">
+        <div class="sb"><span class="si">🔍</span><input id="u-q" placeholder="بحث بالمعرف أو الموقع..." oninput="fu()"></div>
+        <select class="flt" id="u-loc" onchange="fu()">
+          <option value="">كل المواقع</option>
+          <option>Dubai</option><option>Amman</option><option>Cairo</option>
+          <option>Riyadh</option><option>Beirut</option><option>Tunis</option>
+        </select>
+        <select class="flt" id="u-seg" onchange="fu()">
+          <option value="">كل الشرائح</option>
+          <option value="budget">Budget</option><option value="mid">Mid</option><option value="premium">Premium</option>
+        </select>
+        <select class="flt" id="u-gen" onchange="fu()">
+          <option value="">كل الجنسيات</option>
+          <option value="M">ذكر</option><option value="F">أنثى</option><option value="Other">أخرى</option>
+        </select>
+        <div class="cnt" id="u-cnt">500 مستخدم</div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>#</th><th>المعرف</th><th>العمر</th><th>الجنس</th><th>الموقع</th><th>الشريحة</th><th>تاريخ الانضمام</th></tr></thead>
+          <tbody id="u-body"></tbody>
+        </table>
+      </div>
+      <div class="pgr" id="u-pgr"></div>
+    </div>
+  </div>
+
+  <!-- ══ PRODUCTS ══ -->
+  <div class="view" id="v-products">
+    <div class="panel">
+      <div class="ph">📦 جدول المنتجات الكامل</div>
+      <div class="tb-row">
+        <div class="sb"><span class="si">🔍</span><input id="p-q" placeholder="بحث بالاسم أو العلامة..." oninput="fp()"></div>
+        <select class="flt" id="p-cat" onchange="fp()">
+          <option value="">كل الفئات</option>
+          <option>Electronics</option><option>Books</option><option>Clothing</option>
+          <option>Sports</option><option>Home</option><option>Beauty</option>
+          <option>Food</option><option>Toys</option>
+        </select>
+        <select class="flt" id="p-brand" onchange="fp()"><option value="">كل العلامات</option></select>
+        <select class="flt" id="p-sort" onchange="fp()">
+          <option value="rating">الأعلى تقييماً</option>
+          <option value="price_asc">السعر: الأقل</option>
+          <option value="price_desc">السعر: الأعلى</option>
+          <option value="reviews">الأكثر تقييمات</option>
+          <option value="stock">المخزون</option>
+        </select>
+        <div class="cnt" id="p-cnt">200 منتج</div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>#</th><th>المعرف</th><th>الاسم</th><th>الفئة</th><th>العلامة</th><th>السعر</th><th>التقييم</th><th>التقييمات</th><th>المخزون</th></tr></thead>
+          <tbody id="p-body"></tbody>
+        </table>
+      </div>
+      <div class="pgr" id="p-pgr"></div>
+    </div>
+  </div>
+
+  <!-- ══ RATINGS ══ -->
+  <div class="view" id="v-ratings">
+    <div class="panel">
+      <div class="ph">⭐ سجل التقييمات</div>
+      <div class="tb-row">
+        <div class="sb"><span class="si">🔍</span><input id="r-q" placeholder="بحث بمعرف المستخدم أو المنتج..." oninput="fr()"></div>
+        <select class="flt" id="r-rat" onchange="fr()">
+          <option value="">كل التقييمات</option>
+          <option value="5">⭐⭐⭐⭐⭐ 5</option>
+          <option value="4">⭐⭐⭐⭐ 4+</option>
+          <option value="3">⭐⭐⭐ 3+</option>
+          <option value="low">أقل من 3</option>
+        </select>
+        <div class="cnt" id="r-cnt">8,000 تقييم</div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>#</th><th>المستخدم</th><th>المنتج</th><th>اسم المنتج</th><th>الفئة</th><th>التقييم</th><th>التاريخ</th></tr></thead>
+          <tbody id="r-body"></tbody>
+        </table>
+      </div>
+      <div class="pgr" id="r-pgr"></div>
+    </div>
+  </div>
+
+  <!-- ══ RECOMMEND ══ -->
+  <div class="view" id="v-recommend">
+    <div class="rec-layout" style="display:grid;grid-template-columns:1fr 290px;gap:1.1rem">
+      <div>
+        <div class="panel">
+          <div class="ph">✨ التوصيات الشخصية</div>
+          <div class="methods">
+            <div class="mth on" onclick="sm('popular',this)"><span class="mi">🔥</span><span class="ml">الأكثر شعبية</span></div>
+            <div class="mth" onclick="sm('history',this)"><span class="mi">📊</span><span class="ml">بناء على التاريخ</span></div>
+            <div class="mth" onclick="sm('similar',this)"><span class="mi">🔍</span><span class="ml">مشابهة لمنتج</span></div>
+          </div>
+          <div class="row">
+            <div class="field" id="f-user"><label>اختر مستخدم</label><select id="r-user"><option value="">— اختر —</option></select></div>
+            <div class="field" id="f-cat" style="display:none"><label>الفئة</label>
+              <select id="r-cat"><option value="">كل الفئات</option><option>Electronics</option><option>Books</option><option>Clothing</option><option>Sports</option><option>Home</option><option>Beauty</option><option>Food</option><option>Toys</option></select>
+            </div>
+            <div class="field" id="f-prod" style="display:none"><label>اختر منتج</label><select id="r-prod"><option value="">— اختر —</option></select></div>
+            <div class="field" style="flex:0;min-width:90px"><label>عدد النتائج</label>
+              <select id="r-k"><option value="6" selected>6</option><option value="9">9</option><option value="12">12</option></select>
+            </div>
+            <button class="btn" onclick="rec()">🚀 توصية</button>
+          </div>
+          <div id="rec-out"><div class="empty"><span class="ei">✨</span>اختر طريقة ثم انقر توصية</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="ph">📊 مقاييس الأداء</div>
+          <div class="mi-list">
+            <div class="mi-row"><span class="mi-k">RMSE</span><span class="mi-v" style="color:var(--yellow)">1.7534</span></div>
+            <div class="mi-row"><span class="mi-k">MAE</span><span class="mi-v" style="color:var(--yellow)">1.5660</span></div>
+            <div class="mi-row"><span class="mi-k">SVD Explained Var.</span><span class="mi-v" style="color:var(--green)">48.18%</span></div>
+            <div class="mi-row"><span class="mi-k">Train Samples</span><span class="mi-v" style="color:var(--cyan)">6,400</span></div>
+            <div class="mi-row"><span class="mi-k">Test Samples</span><span class="mi-v" style="color:var(--cyan)">1,600</span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="ph">🏗️ المعمارية</div>
+          <div class="arch">
+            <div>🔷 <b style="color:#79b8ff">SVD</b> — Matrix Factorization</div>
+            <div>🔷 <b style="color:var(--purple)">TF-IDF</b> — Content-Based</div>
+            <div>🔷 <b style="color:var(--cyan)">Item-CF</b> — Cosine Similarity</div>
+            <div>🔷 <b style="color:var(--green)">Hybrid</b> — 60% CF + 40% CB</div>
+            <div>🔷 <b style="color:var(--yellow)">NeuralCF</b> — GMF + MLP</div>
+            <div>🔷 <b style="color:var(--red)">FastAPI</b> — REST Deployment</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ DATA SCRIPT ══ -->
+<script src="data.js"></script>
+<script>
+// ═══════════════════════════════════════════
+// Constants
+// ═══════════════════════════════════════════
+const EMO={Electronics:'💻',Books:'📚',Clothing:'👗',Sports:'⚽',Home:'🏠',Beauty:'💄',Food:'🍎',Toys:'🧸'};
+const CATCLS={Electronics:'te',Books:'tb',Clothing:'tc',Sports:'ts',Home:'th',Beauty:'tbe',Food:'tf',Toys:'ty'};
+const SEGCLS={budget:'t-bud',mid:'t-mid',premium:'t-pre'};
+const GENCLS={M:'t-m',F:'t-f',Other:'t-o'};
+const COLORS=['#388bfd','#7c6aff','#26d8f0','#2dcea0','#f0b429','#f06a6a','#fb923c','#e879f9'];
+
+// Pagination state
+const S={
+  u:{all:[],fil:[],pg:1,pp:25},
+  p:{all:[],fil:[],pg:1,pp:25},
+  r:{all:[],fil:[],pg:1,pp:30},
+};
+
+let recMode='popular';
+
+// ═══════════════════════════════════════════
+// Init
+// ═══════════════════════════════════════════
+(function init(){
+  if(typeof DB==='undefined'){
+    document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;color:#f06a6a;font-family:Tajawal,sans-serif"><div style="font-size:3rem">⚠️</div><div style="font-size:1.1rem;font-weight:700">لم يتم تحميل data.js</div><div style="font-size:.85rem;color:#576d8a">تأكد أن data.js في نفس المجلد</div></div>';
+    return;
+  }
+
+  // Flatten ratings to array
+  S.r.all = [];
+  const prodMap = {};
+  DB.products.forEach(p=>prodMap[p.product_id]=p);
+  Object.entries(DB.user_ratings).forEach(([uid,arr])=>{
+    arr.forEach(r=>S.r.all.push({user_id:uid, product_id:r.product_id, rating:r.rating,
+      prod_name: prodMap[r.product_id]?.name||'—',
+      category:  prodMap[r.product_id]?.category||'—'}));
+  });
+
+  S.u.all = [...DB.users];
+  S.u.fil = [...DB.users];
+  S.p.all = [...DB.products];
+  S.p.fil = [...DB.products];
+  S.r.fil = [...S.r.all];
+
+  // Populate brand filter
+  const brands=[...new Set(DB.products.map(p=>p.brand))].sort();
+  document.getElementById('p-brand').innerHTML=
+    '<option value="">كل العلامات</option>'+brands.map(b=>`<option>${b}</option>`).join('');
+
+  // Populate recommendation selects
+  document.getElementById('r-user').innerHTML=
+    '<option value="">— اختر مستخدماً —</option>'+
+    DB.users.map(u=>`<option value="${u.user_id}">${u.user_id} · ${u.location} · ${u.segment}</option>`).join('');
+  document.getElementById('r-prod').innerHTML=
+    '<option value="">— اختر منتجاً —</option>'+
+    DB.products.map(p=>`<option value="${p.product_id}">${EMO[p.category]||'📦'} ${p.name}</option>`).join('');
+
+  renderOverview();
+  renderU(); renderP(); renderR();
+})();
+
+// ═══════════════════════════════════════════
+// Navigation
+// ═══════════════════════════════════════════
+function go(id,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('v-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ═══════════════════════════════════════════
+// Overview
+// ═══════════════════════════════════════════
+function renderOverview(){
+  // Category
+  const cc={};
+  DB.products.forEach(p=>cc[p.category]=(cc[p.category]||0)+1);
+  const mx1=Math.max(...Object.values(cc));
+  document.getElementById('c-cat').innerHTML=
+    Object.entries(cc).sort((a,b)=>b[1]-a[1]).map(([k,v],i)=>
+      `<div class="bi"><span class="bl">${EMO[k]||'📦'} ${k}</span><div class="bt"><div class="bf" style="width:${v/mx1*100}%;background:${COLORS[i%8]}"></div></div><span class="bv">${v}</span></div>`
+    ).join('');
+
+  // Location
+  const lc={};
+  DB.users.forEach(u=>lc[u.location]=(lc[u.location]||0)+1);
+  const mx2=Math.max(...Object.values(lc));
+  document.getElementById('c-loc').innerHTML=
+    Object.entries(lc).sort((a,b)=>b[1]-a[1]).map(([k,v],i)=>
+      `<div class="bi"><span class="bl">🌍 ${k}</span><div class="bt"><div class="bf" style="width:${v/mx2*100}%;background:${COLORS[i%8]}"></div></div><span class="bv">${v}</span></div>`
+    ).join('');
+
+  // Segment
+  const sc={};
+  DB.users.forEach(u=>sc[u.segment]=(sc[u.segment]||0)+1);
+  const mx3=Math.max(...Object.values(sc));
+  document.getElementById('c-seg').innerHTML=
+    Object.entries(sc).sort((a,b)=>b[1]-a[1]).map(([k,v],i)=>
+      `<div class="bi"><span class="bl">🎯 ${k}</span><div class="bt"><div class="bf" style="width:${v/mx3*100}%;background:${COLORS[i%8]}"></div></div><span class="bv">${v}</span></div>`
+    ).join('');
+
+  // Top products
+  const top=[...DB.products].sort((a,b)=>b.avg_rating-a.avg_rating).slice(0,8);
+  document.getElementById('top-prods').innerHTML=
+    '<div class="cards">'+top.map((p,i)=>card(p,i+1)).join('')+'</div>';
+}
+
+// ═══════════════════════════════════════════
+// Users
+// ═══════════════════════════════════════════
+function fu(){
+  const q=document.getElementById('u-q').value.toLowerCase();
+  const loc=document.getElementById('u-loc').value;
+  const seg=document.getElementById('u-seg').value;
+  const gen=document.getElementById('u-gen').value;
+  S.u.fil=S.u.all.filter(u=>
+    (!q||u.user_id.toLowerCase().includes(q)||u.location.toLowerCase().includes(q))&&
+    (!loc||u.location===loc)&&(!seg||u.segment===seg)&&(!gen||u.gender===gen));
+  S.u.pg=1; renderU();
+}
+function renderU(){
+  const {fil,pg,pp}=S.u;
+  document.getElementById('u-cnt').textContent=`${fil.length} مستخدم`;
+  const rows=fil.slice((pg-1)*pp,pg*pp);
+  const start=(pg-1)*pp;
+  document.getElementById('u-body').innerHTML=rows.map((u,i)=>`
+    <tr>
+      <td class="mono">${start+i+1}</td>
+      <td><span class="mono">${u.user_id}</span></td>
+      <td>${u.age}</td>
+      <td><span class="tag ${GENCLS[u.gender]||'t-m'}">${u.gender==='M'?'ذكر':u.gender==='F'?'أنثى':'أخرى'}</span></td>
+      <td>🌍 ${u.location}</td>
+      <td><span class="tag ${SEGCLS[u.segment]||'t-mid'}">${u.segment}</span></td>
+      <td style="font-size:.72rem;color:var(--muted2)">${u.join_date}</td>
+    </tr>`).join('');
+  pager('u-pgr','u');
+}
+
+// ═══════════════════════════════════════════
+// Products
+// ═══════════════════════════════════════════
+function fp(){
+  const q=document.getElementById('p-q').value.toLowerCase();
+  const cat=document.getElementById('p-cat').value;
+  const brand=document.getElementById('p-brand').value;
+  const sort=document.getElementById('p-sort').value;
+  let arr=S.p.all.filter(p=>
+    (!q||p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)||p.product_id.toLowerCase().includes(q))&&
+    (!cat||p.category===cat)&&(!brand||p.brand===brand));
+  if(sort==='rating') arr.sort((a,b)=>b.avg_rating-a.avg_rating);
+  else if(sort==='price_asc') arr.sort((a,b)=>a.price-b.price);
+  else if(sort==='price_desc') arr.sort((a,b)=>b.price-a.price);
+  else if(sort==='reviews') arr.sort((a,b)=>b.num_reviews-a.num_reviews);
+  else arr.sort((a,b)=>b.stock-a.stock);
+  S.p.fil=arr; S.p.pg=1; renderP();
+}
+function renderP(){
+  const {fil,pg,pp}=S.p;
+  document.getElementById('p-cnt').textContent=`${fil.length} منتج`;
+  const rows=fil.slice((pg-1)*pp,pg*pp);
+  const start=(pg-1)*pp;
+  document.getElementById('p-body').innerHTML=rows.map((p,i)=>`
+    <tr>
+      <td class="mono">${start+i+1}</td>
+      <td><span class="mono">${p.product_id}</span></td>
+      <td>${EMO[p.category]||'📦'} ${p.name}</td>
+      <td><span class="tag ${CATCLS[p.category]||'te'}">${p.category}</span></td>
+      <td style="color:var(--muted2);font-size:.78rem">${p.brand}</td>
+      <td><span class="price">$${Number(p.price).toFixed(2)}</span></td>
+      <td><span class="stars">${'★'.repeat(Math.round(p.avg_rating))}${'☆'.repeat(5-Math.round(p.avg_rating))}</span> <span style="font-size:.7rem;color:var(--muted)">${p.avg_rating}</span></td>
+      <td style="font-size:.75rem;color:var(--muted2)">${Number(p.num_reviews).toLocaleString()}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:${p.stock>50?'var(--green)':p.stock>10?'var(--yellow)':'var(--red)'}">${p.stock}</td>
+    </tr>`).join('');
+  pager('p-pgr','p');
+}
+
+// ═══════════════════════════════════════════
+// Ratings
+// ═══════════════════════════════════════════
+function fr(){
+  const q=document.getElementById('r-q').value.toLowerCase();
+  const rat=document.getElementById('r-rat').value;
+  S.r.fil=S.r.all.filter(r=>{
+    const qok=!q||r.user_id.toLowerCase().includes(q)||r.product_id.toLowerCase().includes(q);
+    let rok=true;
+    if(rat==='5') rok=r.rating>=5;
+    else if(rat==='4') rok=r.rating>=4;
+    else if(rat==='3') rok=r.rating>=3;
+    else if(rat==='low') rok=r.rating<3;
+    return qok&&rok;
+  });
+  S.r.pg=1; renderR();
+}
+function renderR(){
+  const {fil,pg,pp}=S.r;
+  document.getElementById('r-cnt').textContent=`${fil.length.toLocaleString()} تقييم`;
+  const rows=fil.slice((pg-1)*pp,pg*pp);
+  const start=(pg-1)*pp;
+  document.getElementById('r-body').innerHTML=rows.map((r,i)=>`
+    <tr>
+      <td class="mono">${start+i+1}</td>
+      <td><span class="mono">${r.user_id}</span></td>
+      <td><span class="mono">${r.product_id}</span></td>
+      <td style="font-size:.78rem">${EMO[r.category]||'📦'} ${r.prod_name}</td>
+      <td><span class="tag ${CATCLS[r.category]||'te'}">${r.category}</span></td>
+      <td><span style="color:var(--yellow);font-weight:700">${'★'.repeat(Math.round(r.rating))}${'☆'.repeat(5-Math.round(r.rating))}</span> <span class="mono">${r.rating}</span></td>
+      <td style="font-size:.7rem;color:var(--muted2)">—</td>
+    </tr>`).join('');
+  pager('r-pgr','r');
+}
+
+// ═══════════════════════════════════════════
+// Pager
+// ═══════════════════════════════════════════
+function pager(elId,key){
+  const {fil,pg,pp}=S[key];
+  const total=Math.ceil(fil.length/pp);
+  if(total<=1){document.getElementById(elId).innerHTML='';return;}
+  let h=`<button class="pg" onclick="gp('${key}',${pg-1})" ${pg<=1?'disabled':''}>‹ السابق</button>`;
+  const s=Math.max(1,pg-2),e=Math.min(total,pg+2);
+  if(s>1) h+=`<button class="pg" onclick="gp('${key}',1)">1</button>${s>2?'<span class="pgi">…</span>':''}`;
+  for(let i=s;i<=e;i++) h+=`<button class="pg ${i===pg?'cur':''}" onclick="gp('${key}',${i})">${i}</button>`;
+  if(e<total) h+=`${e<total-1?'<span class="pgi">…</span>':''}<button class="pg" onclick="gp('${key}',${total})">${total}</button>`;
+  h+=`<button class="pg" onclick="gp('${key}',${pg+1})" ${pg>=total?'disabled':''}>التالي ›</button>`;
+  h+=`<span class="pgi">${(pg-1)*pp+1}–${Math.min(pg*pp,fil.length)} من ${fil.length.toLocaleString()}</span>`;
+  document.getElementById(elId).innerHTML=h;
+}
+function gp(key,p){
+  const total=Math.ceil(S[key].fil.length/S[key].pp);
+  S[key].pg=Math.max(1,Math.min(p,total));
+  if(key==='u')renderU(); else if(key==='p')renderP(); else renderR();
+  window.scrollTo({top:160,behavior:'smooth'});
+}
+
+// ═══════════════════════════════════════════
+// Recommendations
+// ═══════════════════════════════════════════
+function sm(m,el){
+  recMode=m;
+  document.querySelectorAll('.mth').forEach(b=>b.classList.remove('on')); el.classList.add('on');
+  document.getElementById('f-user').style.display=m==='similar'?'none':'flex';
+  document.getElementById('f-cat').style.display=m==='popular'?'flex':'none';
+  document.getElementById('f-prod').style.display=m==='similar'?'flex':'none';
+}
+function rec(){
+  const k=parseInt(document.getElementById('r-k').value);
+  const out=document.getElementById('rec-out');
+  let items=[];
+
+  if(recMode==='popular'){
+    const cat=document.getElementById('r-cat').value;
+    let pool=cat?DB.products.filter(p=>p.category===cat):[...DB.products];
+    items=pool.sort((a,b)=>b.avg_rating-a.avg_rating).slice(0,k);
+    if(!items.length){out.innerHTML='<div class="empty"><span class="ei">😕</span>لا توجد منتجات</div>';return;}
+    out.innerHTML='<div class="cards">'+items.map((p,i)=>card(p,i+1)).join('')+'</div>';
+
+  }else if(recMode==='history'){
+    const uid=document.getElementById('r-user').value;
+    if(!uid){out.innerHTML='<div class="empty"><span class="ei">👤</span>اختر مستخدماً أولاً</div>';return;}
+    const ur=DB.user_ratings[uid]||[];
+    if(!ur.length){out.innerHTML='<div class="empty"><span class="ei">📭</span>لا يوجد تاريخ لهذا المستخدم</div>';return;}
+    const topRated=ur.filter(r=>r.rating>=3.5).map(r=>r.product_id);
+    const cats={};
+    topRated.forEach(pid=>{const p=DB.products.find(x=>x.product_id===pid);if(p)cats[p.category]=(cats[p.category]||0)+1;});
+    const pref=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
+    const seen=new Set(ur.map(r=>r.product_id));
+    items=DB.products
+      .filter(p=>!seen.has(p.product_id))
+      .map(p=>({...p,_s:(pref.indexOf(p.category)>=0?(pref.length-pref.indexOf(p.category))*2:0)+p.avg_rating}))
+      .sort((a,b)=>b._s-a._s).slice(0,k);
+    out.innerHTML='<div class="cards">'+items.map((p,i)=>card(p,i+1)).join('')+'</div>';
+
+  }else{
+    const pid=document.getElementById('r-prod').value;
+    if(!pid){out.innerHTML='<div class="empty"><span class="ei">📦</span>اختر منتجاً أولاً</div>';return;}
+    const sims=(DB.prod_similar[pid]||[]).slice(0,k);
+    items=sims.map(id=>DB.products.find(p=>p.product_id===id)).filter(Boolean);
+    if(!items.length){out.innerHTML='<div class="empty"><span class="ei">🔍</span>لا توجد منتجات مشابهة</div>';return;}
+    out.innerHTML='<div class="cards">'+items.map((p,i)=>card(p,i+1)).join('')+'</div>';
+  }
+}
+
+function card(p,rank){
+  const pct=Math.round((p.avg_rating/5)*100);
+  return `<div class="pc">
+    <div class="pc-rank">${rank}</div>
+    <span class="pc-ico">${EMO[p.category]||'📦'}</span>
+    <div class="pc-name">${p.name}</div>
+    <div class="pc-tags">
+      <span class="pt pt-c">${p.category}</span>
+      <span class="pt pt-b">${p.brand}</span>
+    </div>
+    <div class="pc-sl"><span>جودة التوصية</span><span>${pct}%</span></div>
+    <div class="sb2"><div class="sf" style="width:${pct}%"></div></div>
+    <div class="pc-rt">⭐ ${Number(p.avg_rating).toFixed(1)}</div>
+    <div class="pc-pr">$${Number(p.price).toFixed(2)}</div>
+  </div>`;
+}
+</script>
+</body>
+</html>

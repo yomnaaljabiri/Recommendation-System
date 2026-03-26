@@ -1,0 +1,12 @@
+{
+  "ranking": {
+    "@10": {
+      "precision": 0.0,
+      "recall": 0.0
+    }
+  },
+  "regression": {
+    "rmse": 1.7534,
+    "mae": 1.566
+  }
+}

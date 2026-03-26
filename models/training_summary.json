@@ -1,0 +1,14 @@
+{
+  "collaborative_filtering": {
+    "rmse": 3.3847,
+    "mae": 3.2925,
+    "precision": 0.0,
+    "recall": 0.6735
+  },
+  "dataset": {
+    "n_products": 49,
+    "n_users": 500,
+    "n_ratings": 5089,
+    "sparsity": 0.7923
+  }
+}
